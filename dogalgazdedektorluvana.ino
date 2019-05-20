@@ -78,5 +78,17 @@ void loop () {
                                       
                                      }
                    }
-  
+    if(durum == 0){
+                    if(deger > esikDegeri)
+                    {
+                                      digitalWrite(motor1,HIGH);
+                                      digitalWrite(motor2,LOW);
+                                      delay(1600);
+                                      digitalWrite(motor1,LOW);
+                                      digitalWrite(motor2,LOW);
+                                      durum = 1;
+                                      
+                    }
+                   }
+
 }
