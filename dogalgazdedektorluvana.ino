@@ -79,14 +79,14 @@ void loop () {
                                      }
                    }
     if(durum == 0){
-                    if(deger > esikDegeri)                       
+                    if(deger > esikDegeri)                        // Alınan değer belirlediğiniz eşik değerinden yüksek bir değer ise
                     {
-                                      digitalWrite(motor1,HIGH);  
+                                      digitalWrite(motor1,HIGH);  //Vananın kapanması için motorun çalışma durumunu belirledim.
                                       digitalWrite(motor2,LOW);
-                                      delay(1600);                 
+                                      delay(1600);                 //Tam kapanma süresi kadar motor çalışacak sonrasında duracak
                                       digitalWrite(motor1,LOW);
                                       digitalWrite(motor2,LOW);
-                                      durum = 1;                 
+                                      durum = 1;                    //Durumu bu sefer 1 e eşitleyecektir.
       
                     }
                    }
