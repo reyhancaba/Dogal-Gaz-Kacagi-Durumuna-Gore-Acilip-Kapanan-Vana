@@ -14,7 +14,7 @@ int deger;                          //Sensörden okunan değer
 
 int motor1 = 6;
 int motor2 = 7;
-bool durum;
+bool durum;                         //Boolean değişkeni tanımlandı.
 
 
 
@@ -67,27 +67,27 @@ void loop () {
    lcd.print("TEHLIKE YOK");
    digitalWrite(BuzzerPin, LOW);
   }
-       if(durum == 1){
+       if(durum == 1){                       //Alınan değer belirlediğimiz eşik değerinin altında ise motorun çalışma durumunu belirledim.
                     if(deger < esikDegeri){
-                                      digitalWrite(motor2,HIGH);
+                                      digitalWrite(motor2,HIGH); 
                                       digitalWrite(motor1,LOW);
-                                      delay(1600);
-                                      digitalWrite(motor2,LOW);
+                                      delay(1600);                 //Motorun çalışır vaziyette olma süresi ile vananın tam açılma süresini belirledim.
+                                      digitalWrite(motor2,LOW);    //Tam tur döndükten sonra dönecek ve durumunu bu sefer 0 a eşitleyecek.
                                       digitalWrite(motor1,LOW);
                                       durum = 0;
                                       
                                      }
                    }
     if(durum == 0){
-                    if(deger > esikDegeri)
+                    if(deger > esikDegeri)                       
                     {
-                                      digitalWrite(motor1,HIGH);
+                                      digitalWrite(motor1,HIGH);  
                                       digitalWrite(motor2,LOW);
-                                      delay(1600);
+                                      delay(1600);                 
                                       digitalWrite(motor1,LOW);
                                       digitalWrite(motor2,LOW);
-                                      durum = 1;
-                                      
+                                      durum = 1;                 
+      
                     }
                    }
 
