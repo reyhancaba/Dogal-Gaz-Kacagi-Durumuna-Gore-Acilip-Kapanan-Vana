@@ -261,88 +261,119 @@ void send_commands(String ex){
 
 ///Server için yazdığım
 
-#include <SPI.h>
 #include <ESP8266WiFi.h>
-uint8_t BUTON1= D4;
-uint8_t BUTON2= D5;
-uint8_t BUTON3= D6;
 
-#define KULLANICI_1 'F'
-#define KULLANICI_2 'R'
-#define KULLANICI_3 'H'
-char ssid[] = "SOLDAMATIC";               // SSID of your home WiFi
-char pass[] = "";               // password of your home WiFi
+int led10 = 5; // the pin the LED is connected to
+int led11 =4;
 
-IPAddress server(192,168,0,80); 
-WiFiClient client;                   
-char tampon[120];
-int buton_basim_sayisi=0;
+const char* ssid = "YILANDIL";                  // Your wifi Name       
+const char* password = "hakanyilandil1996"; // Your wifi Password
+const char* Commands_Reply;                 // The command variable that is sent to the client
+
+const char * host = "192.168.2.222";          // IP Client
+
+WiFiServer server(80);
+
 void setup() {
-        Serial.begin(115200); 
-        delay(10);
-        Serial.printf("Connecting to%s ", ssid);
-        WiFi.begin(ssid, pass);                 // connects to the WiFi router
-        while (WiFi.status() != WL_CONNECTED) {   
-        client.connect(server, 80);   // Connection to the server     
-        pinMode(BUTON1,INPUT);
-        pinMode(BUTON2,INPUT);
-        pinMode(BUTON3,INPUT);
-        }
-        Serial.println("Connected");
+  // put your setup code here, to run once:
+  pinMode(led10, OUTPUT);                     // Declare the LED as an output
+  pinMode(led11,OUTPUT);
+  Serial.begin(115200);                     // initialize serial:
+  delay(10);
+
+  Serial.println("");
+  Serial.println("Server-------------------------------");
+  Serial.print("Configuring access point");
+  WiFi.begin(ssid, password);
+
+  // Waiting to connect to wifi
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+    Serial.println("");
+    Serial.println("WiFi connected");
+
+  // Start the server
+    server.begin();
+    Serial.println("Server started");
+
+  // Print the IP address
+    Serial.print("Use this URL to connect: ");
+    Serial.print("http://");
+    Serial.print(WiFi.localIP());
+    Serial.println("/");
+    Serial.println("-------------------------------------");
+    Serial.println("");
 }
 
 void loop() {
+  // put your main code here, to run repeatedly:
+  // Check if a client has connected
+  WiFiClient client = server.available();
+  if (!client) {
+    return;
+  }
   
-  if(digitalRead(BUTON1)==1) // BUTON1 E BASILDIMI
-            {
-                if(buton_basim_sayisi == 0 && tampon[0] == '0' )  // başka butona basılmamış ise ve tampon boş ise
-                    {
-                        client.println(KULLANICI_1); // CLİENTE SOYLE KULLANICI 1 İN İSİNİ YAPSIN
-                    }
-                        else if(buton_basim_sayisi < 120) // Eger daha once bırı butona basmıs ve tampon bos degıl ıse ve tampon dolmamış ise.
-                            {
-                                buton_basim_sayisi++;  // tampon index arttır.
-                                tampon[buton_basim_sayisi] = KULLANICI_1;  // işlemi tampona al.    
-                            }                        
-            }
-            if(digitalRead(BUTON2)==1) // BUTON2 YE BASILDIMI
-            {
-                if(buton_basim_sayisi == 0 && tampon[0] == '0' )  // başka butona basılmamış ise ve tampon boş ise
-                    {
-                        client.println(KULLANICI_2); // CLİENTE SOYLE KULLANICI 2 NİN İSİNİ YAPSIN
-                    }
-                         else if(buton_basim_sayisi < 120)  // Eger daha once bırı butona basmıs ve tampon bos degıl ıse
-                            {
-                                buton_basim_sayisi++;  // tampon index arttır.
-                                tampon[buton_basim_sayisi] = KULLANICI_2;  // işlemi tampona al.    
-                            }      
-            }
-            
-          if(digitalRead(BUTON3)==1) // BUTON2 YE BASILDIMI
-            {
-                if(buton_basim_sayisi == 0 && tampon[0] == '0' )  // başka butona basılmamış ise ve tampon boş ise
-                    {
-                        client.println(KULLANICI_3); // CLİENTE SOYLE KULLANICI 2 NİN İSİNİ YAPSIN
-                    }
-                         else if(buton_basim_sayisi < 120)  // Eger daha once bırı butona basmıs ve tampon bos degıl ıse
-                            {
-                                buton_basim_sayisi++;  // tampon index arttır.
-                                tampon[buton_basim_sayisi] = KULLANICI_3;  // işlemi tampona al.    
-                            }      
-            }
-           if(buton_basim_sayisi > 0) // eğer tamponda iş var ise.
-                {
-                    client.println(tampon[buton_basim_sayisi]); // tampona son girilen işi gönder.
-                    buton_basim_sayisi--;  // ve tamponu 1 azalt ( 1 iş eksildiği için.)
-                }
-                
-                if(buton_basim_sayisi < 0)
-                    {
-                        buton_basim_sayisi = 0;
-                    }
-                else if(buton_basim_sayisi > 120)
-                    {
-                        buton_basim_sayisi = 120;  // tamponu taşırma.
-                    } 
-       client.flush();
+  // Wait until the client sends some data
+  Serial.println("Server-------------------------------");
+  Serial.println("New client");
+  Serial.print("From client = ");
+  while(!client.available()){
+    delay(1);
+  }
+  
+  // Read the first line of the request -------------------------------------
+   String req = client.readStringUntil('\r');
+   Serial.println(req);
+   client.flush();
+
+   //Command LED -------------------------------------------------------------
+    if (req.indexOf("F") != -1){
+      Commands_Reply = "LED Status : Blinking";
+      Serial.print("Server send = ");
+      Serial.println(Commands_Reply);
+      client.print(String("GET ") + Commands_Reply + " HTTP/1.1\r\n" + "Host: " + host + "\r\n" + "Connection: close\r\n\r\n");
+      digitalWrite(led10, HIGH);
+      delay(500);
+      digitalWrite(led10, LOW);
+      delay(500);
+      digitalWrite(led10, HIGH);
+      delay(500);
+      digitalWrite(led10, LOW);
+      delay(500);
+      digitalWrite(led10, HIGH);
+      delay(500);
+      digitalWrite(led10, LOW);
+      delay(500);
     }
+   else {
+     Serial.println("invalid request");
+     Serial.println(Commands_Reply);
+     client.stop();
+     return;
+    }
+    if (req.indexOf("K") != -1){
+      Commands_Reply = "LED Status : Blinking";
+      Serial.print("Server send = ");
+      Serial.println(Commands_Reply);
+      client.print(String("GET ") + Commands_Reply + " HTTP/1.1\r\n" + "Host: " + host + "\r\n" + "Connection: close\r\n\r\n");
+      digitalWrite(led11, HIGH);
+      delay(500);
+      digitalWrite(led11, LOW);
+      delay(500);
+      digitalWrite(led11, HIGH);
+      delay(500);
+      digitalWrite(led11, LOW);
+      delay(500);
+      digitalWrite(led11, HIGH);
+      delay(500);
+      digitalWrite(led11, LOW);
+      delay(500);
+    }
+
+   client.flush();
+   Serial.println("Client disonnected");
+   Serial.println("-------------------------------------");
+   Serial.println("");
+}
