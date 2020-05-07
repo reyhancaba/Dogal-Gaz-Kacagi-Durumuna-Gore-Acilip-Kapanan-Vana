@@ -347,12 +347,12 @@ void loop() {
       digitalWrite(led10, LOW);
       delay(500);
     }
-   else {
+   /*else {
      Serial.println("invalid request");
      Serial.println(Commands_Reply);
      client.stop();
      return;
-    }
+    } */
     if (req.indexOf("K") != -1){
       Commands_Reply = "LED Status : Blinking";
       Serial.print("Server send = ");
